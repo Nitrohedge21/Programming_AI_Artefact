@@ -115,6 +115,10 @@
 -define:ENABLE_TILEMAP
 -define:ENABLE_TIMELINE
 -define:ENABLE_LEGACY_INPUT_MANAGER
+-define:RealtimeCSG
+-define:RealtimeCSG_1
+-define:RealtimeCSG_1_5
+-define:RealtimeCSG_1_5_62
 -define:UNITY_OPERATE_SERVICE_ENABLED
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
