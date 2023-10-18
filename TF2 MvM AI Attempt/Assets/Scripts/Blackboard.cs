@@ -7,7 +7,9 @@ using UnityEngine;
 /// It's up to you to decide exactly what data is useful. You can see ZombieBB.cs for an example
 /// Inherit from it to make your own blackboard
 /// </summary>
+
 public class Blackboard : MonoBehaviour
 {
+    public bool bombBeingCarried = false;
 
 }

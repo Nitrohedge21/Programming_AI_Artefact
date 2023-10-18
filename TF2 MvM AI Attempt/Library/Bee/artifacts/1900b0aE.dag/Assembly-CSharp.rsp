@@ -358,8 +358,10 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/Scripts/Blackboard.cs"
+"Assets/Scripts/Movement.cs"
 "Assets/Scripts/Node.cs"
-"Assets/Scripts/Zombie/Zombie.cs"
+"Assets/Scripts/NormalMovement.cs"
+"Assets/Scripts/Zombie/Robot.cs"
 "Assets/Scripts/Zombie/ZombieBB.cs"
 -langversion:9.0
 
