@@ -331,6 +331,8 @@
 -r:"D:/Unity/2021.3.8f1/Editor/Data/NetStandard/Extensions/2.0.0/System.Runtime.InteropServices.WindowsRuntime.dll"
 -r:"D:/Unity/2021.3.8f1/Editor/Data/NetStandard/ref/2.1.0/netstandard.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-firstpass.ref.dll"
+-r:"Library/Bee/artifacts/1900b0aE.dag/NavMeshComponents.ref.dll"
+-r:"Library/Bee/artifacts/1900b0aE.dag/NavMeshComponentsEditor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.EditorCoroutines.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.Performance.Profile-Analyzer.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.PlasticSCM.Editor.ref.dll"
@@ -358,11 +360,13 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/Scripts/Blackboard.cs"
+"Assets/Scripts/Bomb.cs"
 "Assets/Scripts/Movement.cs"
 "Assets/Scripts/Node.cs"
-"Assets/Scripts/NormalMovement.cs"
-"Assets/Scripts/Zombie/Robot.cs"
-"Assets/Scripts/Zombie/ZombieBB.cs"
+"Assets/Scripts/Robots/Robot.cs"
+"Assets/Scripts/Robots/RobotBB.cs"
+"Assets/Scripts/Unused Scripts/NavMeshMovement.cs"
+"Assets/Scripts/Unused Scripts/NormalMovement.cs"
 -langversion:9.0
 
 /deterministic

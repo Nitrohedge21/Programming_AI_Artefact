@@ -12,4 +12,6 @@ public class Blackboard : MonoBehaviour
 {
     public bool bombBeingCarried = false;
 
+
+
 }
