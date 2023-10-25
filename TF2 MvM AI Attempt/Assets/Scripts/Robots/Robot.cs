@@ -251,7 +251,7 @@ public class BombPickedDecorator : ConditionalDecorator
     public override bool CheckStatus()
     {
         
-        return zBB.bombBeingCarried;
+        return zBB.Bomb.GetComponent<Bomb>().bombBeingCarried;
     }
 }
 
@@ -265,8 +265,7 @@ public class BombDroppedDecorator : ConditionalDecorator
 
     public override bool CheckStatus()
     {
-
-        return !zBB.bombBeingCarried;
+        return !zBB.Bomb.GetComponent<Bomb>().bombBeingCarried;
     }
 }
 

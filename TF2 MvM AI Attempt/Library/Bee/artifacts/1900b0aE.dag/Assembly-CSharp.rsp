@@ -365,8 +365,6 @@
 "Assets/Scripts/Movement.cs"
 "Assets/Scripts/PathFinding/Heap.cs"
 "Assets/Scripts/PathFinding/Pathfinding.cs"
-"Assets/Scripts/PathFinding/PathRequestManager.cs"
-"Assets/Scripts/PathFinding/PFAgent.cs"
 "Assets/Scripts/PathFinding/PFGrid.cs"
 "Assets/Scripts/PathFinding/PFNode.cs"
 "Assets/Scripts/Robots/Robot.cs"
