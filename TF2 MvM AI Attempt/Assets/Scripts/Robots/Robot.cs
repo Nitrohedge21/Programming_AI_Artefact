@@ -49,7 +49,7 @@ public class Robot : MonoBehaviour {
         rootChild.AddChild(playerDecoRoot);
         rootChild.AddChild(bombDecoRoot);
         rootChild.AddChild(hatchRoot);
-        
+
 
         //Execute our BT every 0.1 seconds
         InvokeRepeating("ExecuteBT", 0.1f, 0.1f);
@@ -166,26 +166,12 @@ public class RobotMoveToBomb : BTNode
             Debug.Log("Moving to target");
         }
         BTStatus rv = BTStatus.RUNNING;
-
-
         robotRef.RobotMoveTo(zBB.BombLocation);
-
-        //GameObject[] robots = GameObject.FindGameObjectsWithTag("Robots");
-        //foreach (GameObject robot in robots)
-        //{
-        //    if (zBB.bombBeingCarried == false) {  }
-        //}
-
-        //
-        // TODO:
-        // Might have to use an OnTriggerEnter to set "bombBeingCarried" to true so that not all the robots go for the bomb if it's picked up by another.
-
         if ((robotRef.transform.position - zBB.BombLocation).magnitude <= 1.0f)
         {
             Debug.Log("Reached the target");
             rv = BTStatus.SUCCESS;
             FirstRun = true;
-            zBB.bombBeingCarried = true;
         }
         return rv;
     }
@@ -217,7 +203,6 @@ public class RobotMoveToHatch : BTNode
             Debug.Log("Reached the target");
             rv = BTStatus.SUCCESS;
             FirstRun = true;
-            zBB.bombBeingCarried = true;
         }
         return rv;
     }
@@ -237,6 +222,58 @@ public class RobotStopMovement : BTNode
         return BTStatus.SUCCESS;
     }
 }
+
+// RobotArriveAtHatch is unused for now. //
+public class RobotArriveAtHatch : BTNode
+{
+    private Robot robotRef;
+    public RobotArriveAtHatch(Blackboard bb, Robot zombay) : base(bb)
+    {
+        robotRef = zombay;
+    }
+
+    public override BTStatus Execute()
+    {
+        float slowingSpeed = 1f;
+        robotRef.MoveSpeed = slowingSpeed;
+        return BTStatus.SUCCESS;
+    }
+}
+
+/*public class RobotFollowWaypoints : BTNode
+{
+    private RobotBB zBB;
+    private Robot robotRef;
+    bool FirstRun = true;
+    public RobotFollowWaypoints(Blackboard bb, Robot zombay) : base(bb)
+    {
+        zBB = (RobotBB)bb;
+        robotRef = zombay;
+    }
+
+    public override BTStatus Execute()
+    {
+        if (FirstRun)
+        {
+            FirstRun = false;
+            zBB.CurrentTarget = "Waypoints";
+        }
+        BTStatus rv = BTStatus.RUNNING;
+        robotRef.RobotMoveTo(zBB.WaypointLocation);
+        if ((robotRef.transform.position - zBB.WaypointLocation).magnitude <= 1.0f)
+        {
+            rv = BTStatus.SUCCESS;
+            FirstRun = true;
+        }
+        return rv;
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+        FirstRun = true;
+    }
+}*/
 #endregion
 
 #region Decorators
@@ -287,6 +324,28 @@ public class PlayerDistanceDecorator : ConditionalDecorator
         //Might create a variable for the if statement instead of hard-coding a value.
 
         return PlayerIsClose;
+    }
+}
+
+public class HatchDistanceDecorator : ConditionalDecorator
+{
+    RobotBB zBB;
+    float hatchDistance = 2.0f;
+    public HatchDistanceDecorator(BTNode WrappedNode, Blackboard bb) : base(WrappedNode, bb)
+    {
+        zBB = (RobotBB)bb;
+    }
+
+    public override bool CheckStatus()
+    {
+        bool closeToHatch = false;
+
+        float HatchDistance = (zBB.Hatch.transform.position - zBB.transform.position).magnitude;
+
+        if (HatchDistance < hatchDistance) { closeToHatch = true; }
+        //Might create a variable for the if statement instead of hard-coding a value.
+
+        return closeToHatch;
     }
 }
 #endregion

@@ -20,20 +20,13 @@ public class Bomb : MonoBehaviour
             Debug.Log("Bomb has been picked up!");
         }
     }
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.CompareTag("Robots") && bombBeingCarried == true)
-        {
-            
-            bombBeingCarried = false;
-            Destroy(other.gameObject);
-        }
-    }
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.E))
+        if(Input.GetKey(KeyCode.E))
         {
+            //This function might be called upon the actual destruction of the carrier.
+            //This line is for testing purposes only.
             DetachFromCarrier();
         }
     }
@@ -48,11 +41,14 @@ public class Bomb : MonoBehaviour
 
     void DetachFromCarrier()
     {
+        //Get a reference to the previous parent and the current position to drop the bomb at before destroying the parent.
+        //This somehow causes a bug where it gets rid of two robots at once even though there can be only one parent.
         Vector3 droppedPos = transform.position;
-        
+        GameObject oldParent = transform.parent.gameObject;
         transform.localScale = oldSize;
-        transform.position = droppedPos;
+        transform.position = new Vector3(droppedPos.x, 1.5f, droppedPos.z);
         transform.parent = null;
-        //bombBeingCarried = false;
+        Destroy(oldParent.gameObject); //This line causes an error afterwards but it probably not a big deal.
+        bombBeingCarried = false;
     }
 }

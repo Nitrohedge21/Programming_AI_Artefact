@@ -362,15 +362,17 @@
 "Assets/Scripts/Blackboard.cs"
 "Assets/Scripts/Bomb.cs"
 "Assets/Scripts/BTNode.cs"
-"Assets/Scripts/Movement.cs"
 "Assets/Scripts/PathFinding/Heap.cs"
 "Assets/Scripts/PathFinding/Pathfinding.cs"
 "Assets/Scripts/PathFinding/PFGrid.cs"
 "Assets/Scripts/PathFinding/PFNode.cs"
+"Assets/Scripts/Player/Movement.cs"
 "Assets/Scripts/Robots/Robot.cs"
 "Assets/Scripts/Robots/RobotBB.cs"
 "Assets/Scripts/Unused Scripts/NavMeshMovement.cs"
 "Assets/Scripts/Unused Scripts/NormalMovement.cs"
+"Assets/Scripts/Unused Scripts/WaypointMovement.cs"
+"Assets/Scripts/Waypoints.cs"
 -langversion:9.0
 
 /deterministic
