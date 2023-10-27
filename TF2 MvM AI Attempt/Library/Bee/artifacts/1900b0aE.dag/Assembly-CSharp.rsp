@@ -369,10 +369,13 @@
 "Assets/Scripts/Player/Movement.cs"
 "Assets/Scripts/Robots/Robot.cs"
 "Assets/Scripts/Robots/RobotBB.cs"
+"Assets/Scripts/Robots/Tank.cs"
+"Assets/Scripts/Robots/TankBB.cs"
 "Assets/Scripts/Unused Scripts/NavMeshMovement.cs"
 "Assets/Scripts/Unused Scripts/NormalMovement.cs"
 "Assets/Scripts/Unused Scripts/WaypointMovement.cs"
 "Assets/Scripts/Waypoints.cs"
+"Assets/Scripts/Weapons/Minigun.cs"
 -langversion:9.0
 
 /deterministic
