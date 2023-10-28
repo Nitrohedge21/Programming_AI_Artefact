@@ -15,6 +15,7 @@ public class Minigun : MonoBehaviour
     [SerializeField] private float ShootDelay = 0.2f;
     [SerializeField] private LayerMask Mask;
     [SerializeField] private float BulletSpeed = 100;
+    private float BulletDamage = 0f;
 
     private Animator Animator;
     private float LastShootTime;
@@ -26,6 +27,8 @@ public class Minigun : MonoBehaviour
 
     private void Update()
     {
+        BulletDamage = Random.Range(5f,10f);
+
         if(Input.GetMouseButton(1))
         {
             Animator.SetBool("IsRevved", true);
@@ -52,6 +55,8 @@ public class Minigun : MonoBehaviour
                 TrailRenderer trail = Instantiate(BulletTrail, BulletSpawnPoint.position, Quaternion.identity);
 
                 StartCoroutine(SpawnTrail(trail, hit.point, hit.normal, true));
+
+                ApplyDamage(hit.collider);
 
                 LastShootTime = Time.time;
             }
@@ -106,5 +111,14 @@ public class Minigun : MonoBehaviour
         }
 
         Destroy(Trail.gameObject, Trail.time);
+    }
+
+    public void ApplyDamage(Collider other) 
+    { 
+        if (other.CompareTag("Robots"))
+        {
+            other.GetComponent<Health>().TakeDamage(BulletDamage);
+            Debug.Log("Robot's current HP is " + other.GetComponent<Health>().currenthealth);
+        } 
     }
 }

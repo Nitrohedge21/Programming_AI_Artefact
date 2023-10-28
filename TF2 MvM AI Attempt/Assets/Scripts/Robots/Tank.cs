@@ -8,11 +8,22 @@ public class Tank : MonoBehaviour {
     private Vector3 MoveLocation;
     private bool IsMoving = false;
 
+    [SerializeField] private Waypoints waypoints;
+
+    [SerializeField] private float rotateSpeed = 4.0f;
+
+    [SerializeField] private float distance = 0.1f;
+
+    public Transform currentWaypoint;
+    private Quaternion targetRotation;
+    private Vector3 directionToWaypoint;
+
     private BTNode BTRootNode;
     
     void Start()
     {
-        MoveLocation = transform.position;
+        currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
+        transform.LookAt(currentWaypoint);
 
         //CREATING OUR Robot BEHAVIOUR TREE
 
@@ -24,7 +35,7 @@ public class Tank : MonoBehaviour {
         BTRootNode = rootChild;
 
         CompositeNode hatchRoot = new Sequence(bb);
-        hatchRoot.AddChild(new TankMoveToHatch(bb, this));
+        hatchRoot.AddChild(new TankFollowWaypoints(bb, this));
 
         //Adding to root selector
         rootChild.AddChild(hatchRoot);
@@ -49,6 +60,21 @@ public class Tank : MonoBehaviour {
         this.MoveLocation = MoveLocation;
     }
 
+    public void MoveTowardsWaypoint()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, currentWaypoint.position, MoveSpeed * Time.deltaTime);
+        if (Vector3.Distance(transform.position, currentWaypoint.position) < distance)
+        {
+            currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
+        }
+    }
+    public void RotateTowardsWaypoint()
+    {
+        directionToWaypoint = (currentWaypoint.position - transform.position).normalized;
+        targetRotation = Quaternion.LookRotation(directionToWaypoint);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+    }
+
     public void StopMovement()
     {
         IsMoving = false;
@@ -60,7 +86,6 @@ public class Tank : MonoBehaviour {
     }
     #endregion
 }
-
 
 public class TankMoveToHatch : BTNode
 {
@@ -84,6 +109,36 @@ public class TankMoveToHatch : BTNode
         if ((tankRef.transform.position - tBB.HatchLocation).magnitude <= 1.0f)
         {
             Debug.Log("Reached the target");
+            rv = BTStatus.SUCCESS;
+            FirstRun = true;
+        }
+        return rv;
+    }
+
+}
+
+public class TankFollowWaypoints : BTNode
+{
+    private TankBB tBB;
+    private Tank tankRef;
+    bool FirstRun = true;
+
+    public TankFollowWaypoints(Blackboard bb, Tank _tank) : base(bb)
+    {
+        tankRef = _tank;
+        tBB = (TankBB)bb;
+    }
+    public override BTStatus Execute()
+    {
+        if (FirstRun)
+        {
+            FirstRun = false;
+        }
+        BTStatus rv = BTStatus.RUNNING;
+        tankRef.MoveTowardsWaypoint();
+        tankRef.RotateTowardsWaypoint();
+        if ((tankRef.transform.position - tBB.HatchLocation).magnitude <= 1.0f)
+        {
             rv = BTStatus.SUCCESS;
             FirstRun = true;
         }
