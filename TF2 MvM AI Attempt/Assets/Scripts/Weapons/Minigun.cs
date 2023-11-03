@@ -15,7 +15,7 @@ public class Minigun : MonoBehaviour
     [SerializeField] private float ShootDelay = 0.2f;
     [SerializeField] private LayerMask Mask;
     [SerializeField] private float BulletSpeed = 100;
-    private float BulletDamage = 0f;
+    private int BulletDamage = 0;
 
     private Animator Animator;
     private float LastShootTime;
@@ -27,7 +27,7 @@ public class Minigun : MonoBehaviour
 
     private void Update()
     {
-        BulletDamage = Random.Range(5f,10f);
+        BulletDamage = Random.Range(5,10);
 
         if(Input.GetMouseButton(1))
         {
@@ -118,7 +118,7 @@ public class Minigun : MonoBehaviour
         if (other.CompareTag("Robots"))
         {
             other.GetComponent<Health>().TakeDamage(BulletDamage);
-            Debug.Log("Robot's current HP is " + other.GetComponent<Health>().currenthealth);
+            Debug.Log("Robot's current HP is " + other.GetComponent<Health>().currentHealth);
         } 
     }
 }

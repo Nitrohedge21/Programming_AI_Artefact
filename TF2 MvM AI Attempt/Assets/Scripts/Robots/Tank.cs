@@ -25,8 +25,6 @@ public class Tank : MonoBehaviour {
         currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
         transform.LookAt(currentWaypoint);
 
-        //CREATING OUR Robot BEHAVIOUR TREE
-
         //Get reference to Robot Blackboard
         TankBB bb = GetComponent<TankBB>();
 
@@ -40,7 +38,7 @@ public class Tank : MonoBehaviour {
         //Adding to root selector
         rootChild.AddChild(hatchRoot);
 
-        //Execute our BT every 0.1 seconds
+        //Execute our BT every 0.05 seconds
         InvokeRepeating("ExecuteBT", 0.1f, 0.1f);
     }
     #region Functions
@@ -62,7 +60,8 @@ public class Tank : MonoBehaviour {
 
     public void MoveTowardsWaypoint()
     {
-        transform.position = Vector3.MoveTowards(transform.position, currentWaypoint.position, MoveSpeed * Time.deltaTime);
+        IsMoving = true;
+        this.MoveLocation = currentWaypoint.position;
         if (Vector3.Distance(transform.position, currentWaypoint.position) < distance)
         {
             currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);

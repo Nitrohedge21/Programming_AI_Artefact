@@ -21,7 +21,7 @@ public class Waypoints : MonoBehaviour
 
         //To make the first and the last lines connect, use the code below
         //Unfortunately, the thickness of these lines can not be changed.
-        Gizmos.DrawLine(transform.GetChild(transform.childCount - 1).position, transform.GetChild(0).position);
+        //Gizmos.DrawLine(transform.GetChild(transform.childCount - 1).position, transform.GetChild(0).position);
     }
 
     public Transform GetNextWaypoint(Transform currentWaypoint) 

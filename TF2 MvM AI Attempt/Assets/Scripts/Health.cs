@@ -2,38 +2,38 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [SerializeField] public float currenthealth;
-    [SerializeField] private float maxHealth;
+    [SerializeField] public int currentHealth;
+    [SerializeField] private int maxHealth;
 
     [HideInInspector] public HealthBar healthbar;
     [SerializeField] private bool canBeDestroyed = false;
 
     void Start()
     {
-        currenthealth = maxHealth;
+        currentHealth = maxHealth;
 
         if(this.gameObject.CompareTag("Player")) { healthbar.SetSliderMaxHP(maxHealth); }
     }
 
     void Update() 
     {
-        Mathf.Clamp(currenthealth, 0, maxHealth);
-        if (canBeDestroyed == true && currenthealth <= 0) { Destroy(gameObject); }
+        Mathf.Clamp(currentHealth, 0, maxHealth);
+        if (canBeDestroyed == true && currentHealth <= 0) { Destroy(gameObject); }
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(int amount)
     {
         //Take damage only when the health is above 0 so that the value doesn't go below 0.
-        if(currenthealth >= 0) { currenthealth -= amount; }
+        if(currentHealth >= 0) { currentHealth -= amount; }
         
-        if (this.gameObject.CompareTag("Player")) { healthbar.SetSliderHP(currenthealth); }
+        if (this.gameObject.CompareTag("Player")) { healthbar.SetSliderHP(currentHealth); }
             
     }
 
-    public void Heal(float amount)
+    public void Heal(int amount)
     {
-        currenthealth += amount;
-        if (this.gameObject.CompareTag("Player")) { healthbar.SetSliderHP(currenthealth); }
+        currentHealth += amount;
+        if (this.gameObject.CompareTag("Player")) { healthbar.SetSliderHP(currentHealth); }
     }
 
 }

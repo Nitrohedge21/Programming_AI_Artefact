@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 /// <summary>
@@ -44,6 +42,11 @@ public class Robot : MonoBehaviour {
         BombPickedDecorator hatchRoot = new BombPickedDecorator(TargetHatch, bb);
         TargetHatch.AddChild(new RobotMoveToHatch(bb, this));
         TargetHatch.AddChild(new RobotStopMovement(bb, this));
+        
+        //TODO: Make it move randomly after the bomb has been dropped.
+        //This could either be in this sequence or another sequence
+        //TargetHatch.AddChild(new DelayNode(bb, 0.8f));
+        //TargetHatch.AddChild(new RobotWander(bb, this));
 
         //Adding to root selector
         rootChild.AddChild(playerDecoRoot);
@@ -62,6 +65,7 @@ public class Robot : MonoBehaviour {
         {
             Vector3 dir = MoveLocation - transform.position;
             transform.position += dir.normalized * MoveSpeed * Time.deltaTime;
+            //TODO: Make them face the direction they're moving to.
         }
     }
 
@@ -218,6 +222,7 @@ public class RobotStopMovement : BTNode
 
     public override BTStatus Execute()
     {
+        Debug.Log("Stopped Moving");
         robotRef.StopMovement();
         return BTStatus.SUCCESS;
     }
@@ -236,6 +241,45 @@ public class RobotArriveAtHatch : BTNode
     {
         float slowingSpeed = 1f;
         robotRef.MoveSpeed = slowingSpeed;
+        return BTStatus.SUCCESS;
+    }
+}
+
+public class RobotWander : BTNode
+{
+    private Robot robotRef;
+    private RobotBB rBB;
+    public float WanderRadius = 10f;
+    public float WanderDistance = 10f;
+    public float WanderJitter = 1f;
+    Vector3 WanderTarget = Vector3.zero;
+    float WanderAngle = 0.0f;
+
+    public Vector3 Position;
+    public Vector3 Heading;
+
+    public RobotWander(Blackboard bb, Robot zombay) : base(bb)
+    {
+        rBB = (RobotBB)bb;
+        robotRef = zombay;
+        //WanderAngle = Mathf.Lerp(WanderAngle, WanderAngle, 0.1f);
+    }
+
+    public override BTStatus Execute()
+    {
+        rBB.CurrentTarget = "Wandering around";
+        Position = robotRef.transform.position;
+        Heading = robotRef.transform.forward;
+        WanderAngle = Random.Range(0.0f, Mathf.PI * 2);
+        WanderTarget = new Vector3(Mathf.Cos(WanderAngle), 0, Mathf.Sin(WanderAngle)) * WanderRadius;
+
+        Vector3 targetWorld = Position + WanderTarget;
+
+        targetWorld += Heading * WanderDistance;
+
+        robotRef.RobotMoveTo(targetWorld);
+        Debug.Log("Moving to " + (targetWorld));
+        
         return BTStatus.SUCCESS;
     }
 }
