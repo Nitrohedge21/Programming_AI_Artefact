@@ -15,7 +15,7 @@ public class Minigun : MonoBehaviour
     [SerializeField] private float ShootDelay = 0.2f;
     [SerializeField] private LayerMask Mask;
     [SerializeField] private float BulletSpeed = 100;
-    private int BulletDamage = 0;
+    [SerializeField] private int BulletDamage = 0;
 
     private Animator Animator;
     private float LastShootTime;
@@ -29,7 +29,7 @@ public class Minigun : MonoBehaviour
     {
         BulletDamage = Random.Range(5,10);
 
-        if(Input.GetMouseButton(1))
+        if(transform.parent.CompareTag("Player") && Input.GetMouseButton(1))
         {
             Animator.SetBool("IsRevved", true);
             if(Input.GetMouseButton(0) || Input.GetMouseButtonDown(0))
@@ -114,11 +114,9 @@ public class Minigun : MonoBehaviour
     }
 
     public void ApplyDamage(Collider other) 
-    { 
-        if (other.CompareTag("Robots"))
-        {
-            other.GetComponent<Health>().TakeDamage(BulletDamage);
-            Debug.Log("Robot's current HP is " + other.GetComponent<Health>().currentHealth);
-        } 
+    {
+        //TODO: Gotta fix this function because robots can deal damage to each other.
+        other.GetComponent<Health>().TakeDamage(BulletDamage);
+        Debug.Log(other.name + "'s current HP is " + other.GetComponent<Health>().currentHealth);
     }
 }

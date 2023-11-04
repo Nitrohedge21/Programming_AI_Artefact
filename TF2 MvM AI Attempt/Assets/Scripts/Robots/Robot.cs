@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+using System.Collections.Generic;
 
 /// <summary>
 /// This is our Robot Character. It requires a Robot Blackboard (ZombieBB) component
@@ -11,7 +11,10 @@ public class Robot : MonoBehaviour {
 
     private Vector3 MoveLocation;
     private bool IsMoving = false;
+    private Vector3 ToOurAgent;
+    float Distance;
 
+    public bool IsShooting = false;
     private BTNode BTRootNode;
     
     // Use this for initialization
@@ -37,19 +40,21 @@ public class Robot : MonoBehaviour {
         PlayerDistanceDecorator playerDecoRoot = new PlayerDistanceDecorator(TargetPlayer, bb);
         TargetPlayer.AddChild(new RobotMoveToPlayer(bb, this));
         TargetPlayer.AddChild(new RobotStopMovement(bb, this));
+        TargetPlayer.AddChild(new RobotShootPlayer(bb, this));
 
         CompositeNode TargetHatch = new Sequence(bb);
         BombPickedDecorator hatchRoot = new BombPickedDecorator(TargetHatch, bb);
         TargetHatch.AddChild(new RobotMoveToHatch(bb, this));
         TargetHatch.AddChild(new RobotStopMovement(bb, this));
-        
+
         //TODO: Make it move randomly after the bomb has been dropped.
         //This could either be in this sequence or another sequence
+
         //TargetHatch.AddChild(new DelayNode(bb, 0.8f));
         //TargetHatch.AddChild(new RobotWander(bb, this));
 
         //Adding to root selector
-        rootChild.AddChild(playerDecoRoot);
+        //rootChild.AddChild(playerDecoRoot);
         rootChild.AddChild(bombDecoRoot);
         rootChild.AddChild(hatchRoot);
 
@@ -61,18 +66,54 @@ public class Robot : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        GameObject[] robots = GameObject.FindGameObjectsWithTag("Robots");
+        List<GameObject> TaggedRobots = new List<GameObject>();
+        TaggedRobots.Clear();
+        foreach (GameObject robot in robots)
+        {
+            if (gameObject != robot && Vector3.Distance(robot.transform.position, transform.position) <= 2.5f)
+            {
+                TaggedRobots.Add(robot);
+            }
+        }
         if (IsMoving)
         {
             Vector3 dir = MoveLocation - transform.position;
             transform.position += dir.normalized * MoveSpeed * Time.deltaTime;
-            //TODO: Make them face the direction they're moving to.
+            Seperation(TaggedRobots);
+            ShootPlayer();
         }
     }
 
     public void RobotMoveTo(Vector3 MoveLocation)
     {
         IsMoving = true;
+        if(IsShooting) { transform.LookAt(MoveLocation); }
         this.MoveLocation = MoveLocation;
+    }
+
+    void Seperation(List<GameObject> _taggedVehicles)
+    {
+        foreach (GameObject vehicle in _taggedVehicles)
+        {
+            ToOurAgent = transform.position - vehicle.transform.position;
+            Distance = ToOurAgent.magnitude;
+            RobotMoveTo(transform.position + ToOurAgent.normalized / Distance);
+        }
+    }
+
+    //TODO : Figure out a proper way to use this.
+    //Having multiple LookAt functions mess up with the rotation.
+    public void ShootPlayer()
+    {
+        RobotBB rBB = GetComponent<RobotBB>();
+        if ((transform.position - rBB.PlayerLocation).magnitude <= 12.0f)
+        {
+            transform.LookAt(rBB.Player.transform);
+            GetComponentInChildren<Minigun>().Shoot();
+            IsShooting = true;
+
+        }
     }
 
     public void StopMovement()
@@ -133,8 +174,9 @@ public class RobotMoveToPlayer : BTNode
             // can be overridden in child classes so we don't have to do this?
         }
         BTStatus rv = BTStatus.RUNNING;
+        robotRef.transform.LookAt(zBB.PlayerLocation);
         robotRef.RobotMoveTo(zBB.PlayerLocation);
-        if ((robotRef.transform.position - zBB.PlayerLocation).magnitude <= 1.0f)
+        if ((robotRef.transform.position - zBB.PlayerLocation).magnitude <= 10.0f)
         {
             Debug.Log("Reached the player");
             rv = BTStatus.SUCCESS;
@@ -225,6 +267,43 @@ public class RobotStopMovement : BTNode
         Debug.Log("Stopped Moving");
         robotRef.StopMovement();
         return BTStatus.SUCCESS;
+    }
+}
+
+public class RobotShootPlayer : BTNode
+{
+    private RobotBB zBB;
+    private Robot robotRef;
+    bool FirstRun = true;
+    public RobotShootPlayer(Blackboard bb, Robot zombay) : base(bb)
+    {
+        zBB = (RobotBB)bb;
+        robotRef = zombay;
+    }
+
+    public override BTStatus Execute()
+    {
+        if (FirstRun)
+        {
+            FirstRun = false;
+            zBB.CurrentTarget = "Player";
+            Debug.Log("Shooting at player");
+        }
+        BTStatus rv = BTStatus.RUNNING;
+        if ((robotRef.transform.position - zBB.PlayerLocation).magnitude <= 12.0f)
+        {
+            robotRef.transform.LookAt(zBB.PlayerLocation);
+            robotRef.GetComponentInChildren<Minigun>().Shoot();
+            rv = BTStatus.SUCCESS;
+            FirstRun = true;
+        }
+        return rv;
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+        FirstRun = true;
     }
 }
 
