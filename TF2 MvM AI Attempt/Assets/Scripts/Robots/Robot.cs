@@ -11,10 +11,11 @@ public class Robot : MonoBehaviour {
 
     private Vector3 MoveLocation;
     private bool IsMoving = false;
+    public bool CanSeparate = true;
     private Vector3 ToOurAgent;
     float Distance;
 
-    public bool IsShooting = false;
+    private bool IsShooting = false;
     private BTNode BTRootNode;
     
     // Use this for initialization
@@ -35,12 +36,6 @@ public class Robot : MonoBehaviour {
         BombDroppedDecorator bombDecoRoot = new BombDroppedDecorator(PickUpBomb, bb);
         PickUpBomb.AddChild(new RobotMoveToBomb(bb, this));
         PickUpBomb.AddChild(new RobotStopMovement(bb, this));
-
-        CompositeNode TargetPlayer = new Sequence(bb);
-        PlayerDistanceDecorator playerDecoRoot = new PlayerDistanceDecorator(TargetPlayer, bb);
-        TargetPlayer.AddChild(new RobotMoveToPlayer(bb, this));
-        TargetPlayer.AddChild(new RobotStopMovement(bb, this));
-        TargetPlayer.AddChild(new RobotShootPlayer(bb, this));
 
         CompositeNode TargetHatch = new Sequence(bb);
         BombPickedDecorator hatchRoot = new BombPickedDecorator(TargetHatch, bb);
@@ -81,25 +76,31 @@ public class Robot : MonoBehaviour {
             Vector3 dir = MoveLocation - transform.position;
             transform.position += dir.normalized * MoveSpeed * Time.deltaTime;
             Seperation(TaggedRobots);
-            ShootPlayer();
         }
+        ShootPlayer();
     }
 
     public void RobotMoveTo(Vector3 MoveLocation)
     {
         IsMoving = true;
-        if(IsShooting) { transform.LookAt(MoveLocation); }
+        if(!IsShooting) { transform.LookAt(MoveLocation); }
         this.MoveLocation = MoveLocation;
     }
 
     void Seperation(List<GameObject> _taggedVehicles)
     {
-        foreach (GameObject vehicle in _taggedVehicles)
+        // TODO: Figure out a proper and efficent way of doing this.
+        //This will most likely get removed as it is still not resolving the sequence switching issue.
+        if(CanSeparate == true)
         {
-            ToOurAgent = transform.position - vehicle.transform.position;
-            Distance = ToOurAgent.magnitude;
-            RobotMoveTo(transform.position + ToOurAgent.normalized / Distance);
+            foreach (GameObject vehicle in _taggedVehicles)
+            {
+                ToOurAgent = transform.position - vehicle.transform.position;
+                Distance = ToOurAgent.magnitude;
+                RobotMoveTo(transform.position + ToOurAgent.normalized / Distance);
+            }
         }
+        
     }
 
     //TODO : Figure out a proper way to use this.
@@ -112,8 +113,8 @@ public class Robot : MonoBehaviour {
             transform.LookAt(rBB.Player.transform);
             GetComponentInChildren<Minigun>().Shoot();
             IsShooting = true;
-
         }
+        else { IsShooting = false; }
     }
 
     public void StopMovement()
