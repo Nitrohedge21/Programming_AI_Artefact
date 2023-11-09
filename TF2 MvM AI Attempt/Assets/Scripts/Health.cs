@@ -18,6 +18,8 @@ public class Health : MonoBehaviour
     void Update() 
     {
         Mathf.Clamp(currentHealth, 0, maxHealth);
+        //The line above is for overheal which is supposed to decay over time but since health is an integer, idk what to do.
+        if(currentHealth > maxHealth) { currentHealth -= 1; }
         if (canBeDestroyed == true && currentHealth <= 0) { Destroy(gameObject); }
     }
 

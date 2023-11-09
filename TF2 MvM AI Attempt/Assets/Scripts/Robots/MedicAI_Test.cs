@@ -18,20 +18,7 @@ public class MedicAI_Test : MonoBehaviour
     private void Update()
     {
         FindClosest();
-        if(ClosestExists())
-        {
-            Health closestHealthComp = closestMember.GetComponent<Health>();
-            mediBeam.enabled = true;
-            mediBeam.SetPosition(0, transform.position);
-            mediBeam.SetPosition(1, closestMember.transform.position);
-
-            if (closestHealthComp.currentHealth <= closestHealthComp.maxHealth)
-            {
-                //TODO: Figure out how to delay this.
-                closestMember.GetComponent<Health>().Heal(10);
-            }
-        }
-        else { mediBeam.enabled = false; }
+        HealClosest();
     }
 
     #region Custom Functions
@@ -65,6 +52,23 @@ public class MedicAI_Test : MonoBehaviour
             rv = true;
         }
         return rv;
+    }
+    private void HealClosest()
+    {
+        if (ClosestExists())
+        {
+            Health closestHealthComp = closestMember.GetComponent<Health>();
+            mediBeam.enabled = true;
+            mediBeam.SetPosition(0, transform.position);
+            mediBeam.SetPosition(1, closestMember.transform.position);
+
+            if (closestHealthComp.currentHealth <= closestHealthComp.maxHealth)
+            {
+                //TODO: Figure out how to delay this.
+                closestMember.GetComponent<Health>().Heal(10);
+            }
+        }
+        else { mediBeam.enabled = false; }
     }
 
     #endregion

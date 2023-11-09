@@ -371,6 +371,7 @@
 "Assets/Scripts/Player/Movement.cs"
 "Assets/Scripts/Robots/Bomb.cs"
 "Assets/Scripts/Robots/BombHatch.cs"
+"Assets/Scripts/Robots/MedicAI.cs"
 "Assets/Scripts/Robots/MedicAI_Test.cs"
 "Assets/Scripts/Robots/Robot.cs"
 "Assets/Scripts/Robots/RobotBB.cs"

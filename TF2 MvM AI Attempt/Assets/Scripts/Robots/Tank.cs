@@ -38,7 +38,7 @@ public class Tank : MonoBehaviour {
         //Adding to root selector
         rootChild.AddChild(hatchRoot);
 
-        //Execute our BT every 0.05 seconds
+        //Execute our BT every 0.1 seconds
         InvokeRepeating("ExecuteBT", 0.1f, 0.1f);
     }
     #region Functions
