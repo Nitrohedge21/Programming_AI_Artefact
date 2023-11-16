@@ -15,11 +15,13 @@ public class RobotBB : Blackboard {
     public GameObject Bomb;
     public GameObject Hatch;
     public GameObject WaypointObject;
+    public GameObject BombCarrier;
     public string CurrentTarget;
 
 
     void Update ()
     {
+        BombCarrier = Bomb.GetComponent<Bomb>().carrier;
         //WaypointLocation = WaypointObject.transform.position;
         PlayerLocation = Player.transform.position;
         BombLocation = Bomb.transform.position;

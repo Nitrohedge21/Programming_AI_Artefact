@@ -6,18 +6,26 @@ using System.Collections.Generic;
 /// </summary>
 [RequireComponent(typeof(RobotBB))]
 public class Robot : MonoBehaviour {
-
+    
+    #region General Stuff
     public float MoveSpeed = 10.0f;
 
     private Vector3 MoveLocation;
     private bool IsMoving = false;
     public bool CanSeparate = true;
+    public bool CanWander = false;
     private Vector3 ToOurAgent;
     float Distance;
 
     private bool IsShooting = false;
     private BTNode BTRootNode;
-    
+    #endregion
+
+    #region Timer Stuff
+    float time = 0f;
+    float timeDelay = 1f;
+    #endregion
+
     // Use this for initialization
     void Start()
     {
@@ -38,20 +46,20 @@ public class Robot : MonoBehaviour {
         PickUpBomb.AddChild(new RobotStopMovement(bb, this));
 
         CompositeNode TargetHatch = new Sequence(bb);
-        BombPickedDecorator hatchRoot = new BombPickedDecorator(TargetHatch, bb);
+        BombPickedDecorator hatchRoot = new BombPickedDecorator(TargetHatch, bb, this);
         TargetHatch.AddChild(new RobotMoveToHatch(bb, this));
         TargetHatch.AddChild(new RobotStopMovement(bb, this));
 
         //TODO: Make it move randomly after the bomb has been dropped.
         //This could either be in this sequence or another sequence
 
-        //TargetHatch.AddChild(new DelayNode(bb, 0.8f));
-        //TargetHatch.AddChild(new RobotWander(bb, this));
+        CompositeNode Wander = new Sequence(bb);
+        Wander.AddChild(new RobotWander(bb, this));
 
         //Adding to root selector
-        //rootChild.AddChild(playerDecoRoot);
         rootChild.AddChild(bombDecoRoot);
         rootChild.AddChild(hatchRoot);
+        rootChild.AddChild(Wander);
 
 
         //Execute our BT every 0.1 seconds
@@ -90,28 +98,31 @@ public class Robot : MonoBehaviour {
     void Seperation(List<GameObject> _taggedVehicles)
     {
         // TODO: Figure out a proper and efficent way of doing this.
-        //This will most likely get removed as it is still not resolving the sequence switching issue.
-        if(CanSeparate == true)
+        if (CanSeparate == true)
         {
             foreach (GameObject vehicle in _taggedVehicles)
             {
                 ToOurAgent = transform.position - vehicle.transform.position;
                 Distance = ToOurAgent.magnitude;
+                //The line below is most likely the cause of jittery movement issue.
                 RobotMoveTo(transform.position + ToOurAgent.normalized / Distance);
             }
         }
-        
     }
 
-    //TODO : Figure out a proper way to use this.
-    //Having multiple LookAt functions mess up with the rotation.
     public void ShootPlayer()
     {
         RobotBB rBB = GetComponent<RobotBB>();
         if ((transform.position - rBB.PlayerLocation).magnitude <= 12.0f)
         {
             transform.LookAt(rBB.Player.transform);
-            GetComponentInChildren<Minigun>().Shoot();
+            time += 6f * Time.deltaTime;    //Increment the added float value to make it shoot faster.
+            if (time >= timeDelay)
+            {
+                GetComponentInChildren<Minigun>().Shoot();
+                time = 0f;
+            }
+            
             IsShooting = true;
         }
         else { IsShooting = false; }
@@ -403,16 +414,18 @@ public class RobotWander : BTNode
 #region Decorators
 public class BombPickedDecorator : ConditionalDecorator
 {
+    private Robot robotRef;
     RobotBB zBB;
-    public BombPickedDecorator(BTNode WrappedNode, Blackboard bb) : base(WrappedNode, bb)
+    public BombPickedDecorator(BTNode WrappedNode, Blackboard bb, Robot zombay) : base(WrappedNode, bb)
     {
+        robotRef = zombay;
         zBB = (RobotBB)bb;
     }
 
     public override bool CheckStatus()
     {
         
-        return zBB.Bomb.GetComponent<Bomb>().bombBeingCarried;
+        return zBB.Bomb.GetComponent<Bomb>().bombBeingCarried && !robotRef.CanWander;
     }
 }
 

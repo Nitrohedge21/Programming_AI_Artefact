@@ -13,7 +13,8 @@ public class MedicAI : MonoBehaviour
     private LineRenderer mediBeam;
     public GameObject closestMember;
     public Vector3 ClosestMemberPos = Vector3.zero;
-    [Range(0.0f, 5.0f)] public float distanceRadius;
+    [Range(0.0f, 30.0f)] public float followRange;
+    [Range(0.0f, 5.0f)] public float healRange;
 
     public float MoveSpeed = 10.0f;
     private Vector3 MoveLocation;
@@ -82,19 +83,20 @@ public class MedicAI : MonoBehaviour
 
     private GameObject FindClosest()
     {
-        float closestDistance = Mathf.Infinity;
         closestMember = null;
-
+        
         foreach (GameObject member in teamMembers)
         {
             float distance = (member.transform.position - transform.position).magnitude;
-            if (gameObject != member && distance < distanceRadius)
+            if (gameObject != member && distance < followRange)
             {
-                closestDistance = distance;
-                closestMember = member;
+                if(closestMember != null  && Vector3.Distance(closestMember.transform.position, transform.position) > distance)
+                {
+                    closestMember = member;
+                    followRange = 10.0f;
+                }
+                else if (closestMember == null) { closestMember = member; followRange = 10.0f; }
             }
-            //The line above isn't what I want but it makes it follow when it get's outta it's radius as well.
-            else if (gameObject != member) { closestMember = member; }
         }
         if (gameObject.layer == 8 && closestMember != null)
         {
@@ -116,7 +118,7 @@ public class MedicAI : MonoBehaviour
 
     private void HealClosest()
     {
-        if (ClosestExists() && (Vector3.Distance(transform.position, ClosestMemberPos) < distanceRadius))
+        if (ClosestExists() && (Vector3.Distance(transform.position, ClosestMemberPos) < healRange))
         {
             Health closestHealthComp = closestMember.GetComponent<Health>();
             mediBeam.enabled = true;
