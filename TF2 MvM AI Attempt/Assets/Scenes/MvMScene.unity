@@ -389,7 +389,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &32395890
 Transform:
   m_ObjectHideFlags: 0
@@ -917,7 +917,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &146369994
 Transform:
   m_ObjectHideFlags: 0
@@ -2439,7 +2439,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &409093942
 Transform:
   m_ObjectHideFlags: 0
@@ -2663,7 +2663,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &421577054
 Transform:
   m_ObjectHideFlags: 0
@@ -3672,7 +3672,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &583235648
 Transform:
   m_ObjectHideFlags: 0
@@ -3858,6 +3858,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamMembers: []
+  beamObject: {fileID: 0}
+  mediBeam: {fileID: 0}
+  closestMember: {fileID: 0}
   distanceRadius: 5
 --- !u!114 &625850041
 MonoBehaviour:
@@ -4482,7 +4485,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &752841553
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4737,7 +4740,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24368
+    surfaceParameter: 24384
     meshQueryIndex: 7
     subMeshQueryIndex: 0
     geometryHashValue: 4161620643871767045
@@ -4762,7 +4765,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &850927819
 Transform:
   m_ObjectHideFlags: 0
@@ -5587,7 +5590,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &987721181
 Transform:
   m_ObjectHideFlags: 0
@@ -5988,7 +5991,7 @@ MonoBehaviour:
     meshQuery:
       layers: 33554440
       maskAndChannels: 8
-    surfaceParameter: 24336
+    surfaceParameter: 24352
     meshQueryIndex: 1
     subMeshQueryIndex: 0
     geometryHashValue: 4954267872743268846
@@ -6244,7 +6247,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24370
+    surfaceParameter: 24386
     meshQueryIndex: 8
     subMeshQueryIndex: 0
     geometryHashValue: -5887577109735113487
@@ -6840,7 +6843,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24372
+    surfaceParameter: 24388
     meshQueryIndex: 5
     subMeshQueryIndex: 0
     geometryHashValue: 4156352132531778925
@@ -7462,7 +7465,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1502368446
 Transform:
   m_ObjectHideFlags: 0
@@ -8803,7 +8806,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1801392683
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9646,7 +9649,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24356
+    surfaceParameter: 24372
     meshQueryIndex: 0
     subMeshQueryIndex: 0
     geometryHashValue: 3662927254812793495
@@ -9670,6 +9673,7 @@ GameObject:
   - component: {fileID: 1925284936}
   - component: {fileID: 1925284935}
   - component: {fileID: 1925284942}
+  - component: {fileID: 1925284943}
   - component: {fileID: 1925284940}
   - component: {fileID: 1925284941}
   m_Layer: 8
@@ -9829,8 +9833,25 @@ MonoBehaviour:
   closestMember: {fileID: 0}
   ClosestMemberPos: {x: 0, y: 0, z: 0}
   followRange: 10
-  healRange: 5
   MoveSpeed: 4
+--- !u!114 &1925284943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925284933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6504bcf1b77423042a99ee53e740f88d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teamMembers: []
+  closestMember: {fileID: 0}
+  ClosestMemberPos: {x: 0, y: 0, z: 0}
+  detectionRange: 10
+  healRange: 5
+  MoveSpeed: 10
 --- !u!1 &1941812532
 GameObject:
   m_ObjectHideFlags: 0
@@ -10312,7 +10333,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &2094196231
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -10567,7 +10588,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777221
       maskAndChannels: 234881031
-    surfaceParameter: 24372
+    surfaceParameter: 24388
     meshQueryIndex: 6
     subMeshQueryIndex: 0
     geometryHashValue: -8675572369749448041
@@ -10943,7 +10964,7 @@ MonoBehaviour:
     meshQuery:
       layers: 16777223
       maskAndChannels: 234881031
-    surfaceParameter: 24366
+    surfaceParameter: 24382
     meshQueryIndex: 9
     subMeshQueryIndex: 0
     geometryHashValue: 3482473989705103011
@@ -10975,7 +10996,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2140990211
 Transform:
   m_ObjectHideFlags: 0
