@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Robots
   - Mann
+  - Waypoints
   layers:
   - Default
   - TransparentFX

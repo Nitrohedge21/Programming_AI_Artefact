@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(TankBB))]
 public class Tank : MonoBehaviour {
@@ -9,20 +10,26 @@ public class Tank : MonoBehaviour {
     private bool IsMoving = false;
 
     [SerializeField] private Waypoints waypoints;
-
+    
     [SerializeField] private float rotateSpeed = 4.0f;
 
-    [SerializeField] private float distance = 0.1f;
+    [SerializeField] private float distance = 3f;
 
     public Transform currentWaypoint;
     private Quaternion targetRotation;
     private Vector3 directionToWaypoint;
+
+    #region test stuff
+    private GameObject[] waypointArray;
+    [SerializeField] List<GameObject> Visited = new List<GameObject>();
+    #endregion
 
     private BTNode BTRootNode;
     
     void Start()
     {
         currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
+        waypointArray = GameObject.FindGameObjectsWithTag("Waypoints");
         transform.LookAt(currentWaypoint);
 
         //Get reference to Robot Blackboard
@@ -72,6 +79,38 @@ public class Tank : MonoBehaviour {
         directionToWaypoint = (currentWaypoint.position - transform.position).normalized;
         targetRotation = Quaternion.LookRotation(directionToWaypoint);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+    }
+
+    public void Pathfinding()
+    {
+        IsMoving = true;
+        this.MoveLocation = currentWaypoint.position;
+
+        foreach(GameObject point in waypointArray)
+        {
+            if(Visited.Contains(point))
+            {
+                continue;
+            }
+            if (point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) < distance)
+            {
+                currentWaypoint = point.transform;
+                this.MoveLocation = point.transform.position;
+                if(Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
+                {
+                    Visited.Add(currentWaypoint.gameObject);
+                }
+            }
+            else if(point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) > Vector3.Distance(transform.position, point.transform.position))
+            {
+                currentWaypoint = point.transform;
+                this.MoveLocation = point.transform.position;
+                if (Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
+                {
+                    Visited.Add(currentWaypoint.gameObject);
+                }
+            }
+        }
     }
 
     public void StopMovement()
@@ -134,7 +173,7 @@ public class TankFollowWaypoints : BTNode
             FirstRun = false;
         }
         BTStatus rv = BTStatus.RUNNING;
-        tankRef.MoveTowardsWaypoint();
+        tankRef.Pathfinding();
         tankRef.RotateTowardsWaypoint();
         if ((tankRef.transform.position - tBB.HatchLocation).magnitude <= 1.0f)
         {
