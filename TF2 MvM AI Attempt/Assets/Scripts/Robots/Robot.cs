@@ -21,6 +21,15 @@ public class Robot : MonoBehaviour {
     private BTNode BTRootNode;
     #endregion
 
+    #region Waypoint Pathfinding Stuff
+    [SerializeField] private float distance = 3f;
+    public Transform currentWaypoint;
+    [SerializeField] public GameObject[] waypointArray;
+    [SerializeField] List<GameObject> Visited = new List<GameObject>();
+    private Vector3 directionToWaypoint;
+    [SerializeField] private Waypoints waypoints;
+    #endregion
+
     #region Timer Stuff
     float time = 0f;
     float timeDelay = 1f;
@@ -29,6 +38,7 @@ public class Robot : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
+        currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
         MoveLocation = transform.position;
 
         //CREATING OUR Robot BEHAVIOUR TREE
@@ -42,12 +52,14 @@ public class Robot : MonoBehaviour {
 
         CompositeNode PickUpBomb = new Sequence(bb);
         BombDroppedDecorator bombDecoRoot = new BombDroppedDecorator(PickUpBomb, bb);
-        PickUpBomb.AddChild(new RobotMoveToBomb(bb, this));
+        PickUpBomb.AddChild(new RobotPF(bb, this));
+        //PickUpBomb.AddChild(new RobotMoveToBomb(bb, this));
         PickUpBomb.AddChild(new RobotStopMovement(bb, this));
 
         CompositeNode TargetHatch = new Sequence(bb);
         BombPickedDecorator hatchRoot = new BombPickedDecorator(TargetHatch, bb, this);
-        TargetHatch.AddChild(new RobotMoveToHatch(bb, this));
+        TargetHatch.AddChild(new RobotPF(bb, this));
+        //TargetHatch.AddChild(new RobotMoveToHatch(bb, this));
         TargetHatch.AddChild(new RobotStopMovement(bb, this));
 
         //TODO: Make it move randomly after the bomb has been dropped.
@@ -69,6 +81,7 @@ public class Robot : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        waypointArray = GameObject.FindGameObjectsWithTag("Waypoints");
         GameObject[] robots = GameObject.FindGameObjectsWithTag("Robots");
         List<GameObject> TaggedRobots = new List<GameObject>();
         TaggedRobots.Clear();
@@ -110,6 +123,42 @@ public class Robot : MonoBehaviour {
         }
     }
 
+    public void Pathfinding()
+    {
+        IsMoving = true;
+        RobotMoveTo(currentWaypoint.position);
+
+        foreach (GameObject point in waypointArray)
+        {
+            if(!ReachedLastPoint())
+            {
+                if (Visited.Contains(point))
+                {
+                    continue;
+                }
+                if (point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) < distance)
+                {
+                    currentWaypoint = point.transform;
+                    RobotMoveTo(point.transform.position);
+                    if (Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
+                    {
+                        Visited.Add(currentWaypoint.gameObject);
+                    }
+                }
+                else if (point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) > Vector3.Distance(transform.position, point.transform.position))
+                {
+                    currentWaypoint = point.transform;
+                    RobotMoveTo(point.transform.position);
+                    if (Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
+                    {
+                        Visited.Add(currentWaypoint.gameObject);
+                    }
+                }
+            }
+
+        }
+    }
+
     public void ShootPlayer()
     {
         RobotBB rBB = GetComponent<RobotBB>();
@@ -138,6 +187,16 @@ public class Robot : MonoBehaviour {
         BTRootNode.Execute();
     }
     #endregion
+
+    bool ReachedLastPoint()
+    {
+        bool rv = false;
+        if ((transform.position - waypointArray[waypointArray.Length - 1].transform.position).magnitude <= distance)
+        {
+            rv = true;
+        }
+        return rv;
+    }
 }
 
 #region Actions
@@ -159,6 +218,46 @@ public class RobotWaitTillAtLocation : BTNode
         {
             Debug.Log("Reached target");
             rv = BTStatus.SUCCESS;
+        }
+        return rv;
+    }
+}
+
+public class RobotPF : BTNode
+{
+    private RobotBB zBB;
+    private Robot robotRef;
+    bool FirstRun = true;
+    public RobotPF(Blackboard bb, Robot zombay) : base(bb)
+    {
+        zBB = (RobotBB)bb;
+        robotRef = zombay;
+    }
+
+    public override BTStatus Execute()
+    {
+        bool ReachedLastPoint()
+        {
+            bool rv = false;
+            if((robotRef.transform.position - robotRef.waypointArray[robotRef.waypointArray.Length - 1].transform.position).magnitude <= 1.0f)
+            {
+                rv = true;
+            }
+            return rv;
+        };
+        if (FirstRun)
+        {
+            zBB.CurrentTarget = "Bomb";
+            FirstRun = false;
+            Debug.Log("Moving to target");
+        }
+        BTStatus rv = BTStatus.RUNNING;
+        robotRef.Pathfinding();
+        if (ReachedLastPoint())
+        {
+            Debug.Log("Reached the target");
+            rv = BTStatus.SUCCESS;
+            FirstRun = true;
         }
         return rv;
     }
@@ -369,7 +468,7 @@ public class RobotWander : BTNode
         targetWorld += Heading * WanderDistance;
 
         robotRef.RobotMoveTo(targetWorld);
-        Debug.Log("Moving to " + (targetWorld));
+        //Debug.Log("Moving to " + (targetWorld));
         
         return BTStatus.SUCCESS;
     }

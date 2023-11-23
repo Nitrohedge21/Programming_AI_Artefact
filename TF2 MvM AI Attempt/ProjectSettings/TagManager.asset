@@ -7,6 +7,7 @@ TagManager:
   - Robots
   - Mann
   - Waypoints
+  - TankWP
   layers:
   - Default
   - TransparentFX

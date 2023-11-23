@@ -7,29 +7,27 @@ public class Tank : MonoBehaviour {
     public float MoveSpeed = 10.0f;
 
     private Vector3 MoveLocation;
-    private bool IsMoving = false;
 
-    [SerializeField] private Waypoints waypoints;
+    private bool IsMoving = false;
     
     [SerializeField] private float rotateSpeed = 4.0f;
 
-    [SerializeField] private float distance = 3f;
-
-    public Transform currentWaypoint;
     private Quaternion targetRotation;
-    private Vector3 directionToWaypoint;
 
-    #region test stuff
+    #region Waypoint Pathfinding Stuff
+    [SerializeField] private float distance = 3f;
+    public Transform currentWaypoint;
     private GameObject[] waypointArray;
     [SerializeField] List<GameObject> Visited = new List<GameObject>();
+    private Vector3 directionToWaypoint;
+    [SerializeField] private Waypoints waypoints;
     #endregion
 
     private BTNode BTRootNode;
     
     void Start()
     {
-        currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
-        waypointArray = GameObject.FindGameObjectsWithTag("Waypoints");
+        waypointArray = GameObject.FindGameObjectsWithTag("TankWP");
         transform.LookAt(currentWaypoint);
 
         //Get reference to Robot Blackboard
@@ -76,41 +74,60 @@ public class Tank : MonoBehaviour {
     }
     public void RotateTowardsWaypoint()
     {
-        directionToWaypoint = (currentWaypoint.position - transform.position).normalized;
-        targetRotation = Quaternion.LookRotation(directionToWaypoint);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+        if(!ReachedLastPoint())
+        {
+            directionToWaypoint = (currentWaypoint.position - transform.position).normalized;
+            targetRotation = Quaternion.LookRotation(directionToWaypoint);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotateSpeed * Time.deltaTime);
+        }
     }
 
     public void Pathfinding()
     {
+        //  The line below was originally done in Start before hence why it wasn't detecting the any points created after the start    //
+        currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
         IsMoving = true;
         this.MoveLocation = currentWaypoint.position;
 
         foreach(GameObject point in waypointArray)
         {
-            if(Visited.Contains(point))
+            if(!ReachedLastPoint())
             {
-                continue;
-            }
-            if (point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) < distance)
-            {
-                currentWaypoint = point.transform;
-                this.MoveLocation = point.transform.position;
-                if(Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
+                if (Visited.Contains(point))
                 {
-                    Visited.Add(currentWaypoint.gameObject);
+                    continue;
+                }
+                if (point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) < distance)
+                {
+                    currentWaypoint = point.transform;
+                    this.MoveLocation = point.transform.position;
+                    if (Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
+                    {
+                        Visited.Add(currentWaypoint.gameObject);
+                    }
+                }
+                else if (point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) > Vector3.Distance(transform.position, point.transform.position))
+                {
+                    currentWaypoint = point.transform;
+                    this.MoveLocation = point.transform.position;
+                    if (Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
+                    {
+                        Visited.Add(currentWaypoint.gameObject);
+                    }
                 }
             }
-            else if(point != currentWaypoint && Vector3.Distance(transform.position, currentWaypoint.position) > Vector3.Distance(transform.position, point.transform.position))
-            {
-                currentWaypoint = point.transform;
-                this.MoveLocation = point.transform.position;
-                if (Vector3.Distance(currentWaypoint.position, transform.position) < 3f)
-                {
-                    Visited.Add(currentWaypoint.gameObject);
-                }
-            }
+            
         }
+    }
+
+    bool ReachedLastPoint()
+    {
+        bool rv = false;
+        if ((transform.position - waypointArray[waypointArray.Length - 1].transform.position).magnitude <= distance)
+        {
+            rv = true;
+        }
+        return rv;
     }
 
     public void StopMovement()
