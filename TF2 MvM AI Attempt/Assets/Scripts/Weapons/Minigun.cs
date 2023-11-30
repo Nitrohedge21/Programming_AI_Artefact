@@ -15,7 +15,7 @@ public class Minigun : MonoBehaviour
     [SerializeField] private float ShootDelay = 0.2f;
     [SerializeField] private LayerMask Mask;
     [SerializeField] private float BulletSpeed = 100;
-    [SerializeField] private int BulletDamage = 0;
+    [SerializeField] public int BulletDamage = 0;
 
     private Animator Animator;
     private float LastShootTime;
