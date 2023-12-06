@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(RobotBB))]
 public class RobotMovementBT : MonoBehaviour
@@ -7,6 +8,7 @@ public class RobotMovementBT : MonoBehaviour
 
     #region General/Required Stuff
     private BTNode BTRootNode;
+    [HideInInspector] public NavMeshAgent agent;
     #endregion
     #region Movement Stuff
     public float MoveSpeed = 10.0f;
@@ -17,12 +19,12 @@ public class RobotMovementBT : MonoBehaviour
     private Vector3 ToOurAgent;
     float Distance;
     #endregion
-    #region Waypoint Pathfinding Stuff
-    [SerializeField] private float distance = 3f;
-    public Transform currentWaypoint;
+    #region Waypoint Stuff
+    [HideInInspector] private float distance = 3f;
+    [HideInInspector] public Transform currentWaypoint;
     [HideInInspector] public GameObject[] waypointArray;
-    [SerializeField] List<GameObject> Visited = new List<GameObject>();
-    [SerializeField] private Waypoints waypoints;
+    [HideInInspector] List<GameObject> Visited = new List<GameObject>();
+    [HideInInspector] private Waypoints waypoints;
     [HideInInspector] public GameObject targetWaypoint;
     #endregion
     #region Timer Stuff (2BeUsed4BombDropping)
@@ -32,7 +34,9 @@ public class RobotMovementBT : MonoBehaviour
 
     void Start()
     {
-        currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
+        //currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
+
+        agent = GetComponent<NavMeshAgent>();
         MoveLocation = transform.position;
 
         //CREATING OUR Robot BEHAVIOUR TREE
@@ -46,26 +50,26 @@ public class RobotMovementBT : MonoBehaviour
 
         CompositeNode PickUpBomb = new Sequence(bb);
         BombDroppedDecorator bombDecoRoot = new BombDroppedDecorator(PickUpBomb, bb);
-        PickUpBomb.AddChild(new RobotMoveToBomb(bb, this));
+        PickUpBomb.AddChild(new RobotFindBomb(bb, this));
         PickUpBomb.AddChild(new RobotStopMovement(bb, this));
 
         CompositeNode TargetHatch = new Sequence(bb);
         BombPickedDecorator hatchRoot = new BombPickedDecorator(TargetHatch, bb, this);
-        TargetHatch.AddChild(new RobotMoveToHatch(bb, this));
+        TargetHatch.AddChild(new RobotFindHatch(bb, this));
         TargetHatch.AddChild(new RobotStopMovement(bb, this));
 
         CompositeNode Wander = new Sequence(bb);
         Wander.AddChild(new RobotWander(bb, this));
 
         CompositeNode TestNode = new Sequence(bb);
-        TestNode.AddChild(new RobotPF(bb, this));
+        TestNode.AddChild(new RobotWaypoint(bb, this));
         TestNode.AddChild(new RobotStopMovement(bb, this));
 
         //Adding to root selector
-        //rootChild.AddChild(bombDecoRoot);
-        //rootChild.AddChild(hatchRoot);
+        rootChild.AddChild(bombDecoRoot);
+        rootChild.AddChild(hatchRoot);
         //rootChild.AddChild(Wander);
-        rootChild.AddChild(TestNode);
+        //rootChild.AddChild(TestNode);
 
 
         //Execute our BT every 0.1 seconds
@@ -74,11 +78,14 @@ public class RobotMovementBT : MonoBehaviour
     
     void Update()
     {
-        waypointArray = GameObject.FindGameObjectsWithTag("Waypoints");
+        #region Waypoint stuff that were cut
+        //waypointArray = GameObject.FindGameObjectsWithTag("Waypoints");
+        //targetWaypoint = waypointArray[waypointArray.Length - 1];
+        #endregion
+
         GameObject[] robots = GameObject.FindGameObjectsWithTag("Robots");
         List<GameObject> TaggedRobots = new List<GameObject>();
         TaggedRobots.Clear();
-        targetWaypoint = waypointArray[waypointArray.Length - 1];
         foreach (GameObject robot in robots)
         {
             if (gameObject != robot && Vector3.Distance(robot.transform.position, transform.position) <= 2.5f)
@@ -116,7 +123,7 @@ public class RobotMovementBT : MonoBehaviour
         }
     }
 
-    public void Pathfinding()
+    public void Waypoint()
     {
         IsMoving = true;
         // An attempt at making it go to the final one
@@ -153,6 +160,15 @@ public class RobotMovementBT : MonoBehaviour
             }
 
         }
+    }
+
+    public void Pathfinding(Vector3 targetPos)
+    {
+        IsMoving = true;
+        agent.speed = MoveSpeed;
+        agent.SetDestination(targetPos);
+        this.MoveLocation = targetPos;
+        agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
     }
 
     public void StopMovement()
@@ -203,12 +219,12 @@ public class RobotWaitTillAtLocation : BTNode
     }
 }
 
-public class RobotPF : BTNode
+public class RobotWaypoint : BTNode
 {
     private RobotBB zBB;
     private RobotMovementBT robotRef;
     bool FirstRun = true;
-    public RobotPF(Blackboard bb, RobotMovementBT zombay) : base(bb)
+    public RobotWaypoint(Blackboard bb, RobotMovementBT zombay) : base(bb)
     {
         zBB = (RobotBB)bb;
         robotRef = zombay;
@@ -232,10 +248,70 @@ public class RobotPF : BTNode
             Debug.Log("Moving to target");
         }
         BTStatus rv = BTStatus.RUNNING;
-        robotRef.Pathfinding();
+        robotRef.Waypoint();
         if (ReachedLastPoint())
         {
             Debug.Log("Reached the target");
+            rv = BTStatus.SUCCESS;
+            FirstRun = true;
+        }
+        return rv;
+    }
+}
+
+public class RobotFindBomb : BTNode
+{
+    private RobotBB zBB;
+    private RobotMovementBT robotRef;
+    bool FirstRun = true;
+    public RobotFindBomb(Blackboard bb, RobotMovementBT zombay) : base(bb)
+    {
+        zBB = (RobotBB)bb;
+        robotRef = zombay;
+    }
+
+    public override BTStatus Execute()
+    {
+        
+        if (FirstRun)
+        {
+            zBB.CurrentTarget = "Bomb";
+            FirstRun = false;
+        }
+        BTStatus rv = BTStatus.RUNNING;
+        robotRef.Pathfinding(zBB.BombLocation);
+        if (Vector3.Distance(zBB.BombLocation, robotRef.transform.position) < 1.0f)
+        {
+            rv = BTStatus.SUCCESS;
+            FirstRun = true;
+        }
+        return rv;
+    }
+}
+
+public class RobotFindHatch : BTNode
+{
+    private RobotBB zBB;
+    private RobotMovementBT robotRef;
+    bool FirstRun = true;
+    public RobotFindHatch(Blackboard bb, RobotMovementBT zombay) : base(bb)
+    {
+        zBB = (RobotBB)bb;
+        robotRef = zombay;
+    }
+
+    public override BTStatus Execute()
+    {
+
+        if (FirstRun)
+        {
+            zBB.CurrentTarget = "Hatch";
+            FirstRun = false;
+        }
+        BTStatus rv = BTStatus.RUNNING;
+        robotRef.Pathfinding(zBB.HatchLocation);
+        if (Vector3.Distance(zBB.HatchLocation, robotRef.transform.position) < 1.0f)
+        {
             rv = BTStatus.SUCCESS;
             FirstRun = true;
         }

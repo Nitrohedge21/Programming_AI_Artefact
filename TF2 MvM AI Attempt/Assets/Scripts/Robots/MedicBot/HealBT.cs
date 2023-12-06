@@ -151,7 +151,6 @@ public class MedicHeal : BTNode
         {
             FirstRun = false;
             zBB.CurrentTarget = robotRef.closestMember.name;
-            Debug.Log("Moving to " + robotRef.closestMember.name);
         }
         BTStatus rv = BTStatus.RUNNING;
         float oldHP = robotRef.GetComponent<Health>().currentHealth;

@@ -85,7 +85,7 @@ public class MedicMovementBT : MonoBehaviour
         }
         if (gameObject.layer == 8 && closestMember != null)
         {
-            Debug.Log("closest object is " + closestMember.name);
+            //Debug.Log("closest object is " + closestMember.name);
         }
 
         return closestMember;
@@ -117,7 +117,7 @@ public class MedicFollow : BTNode
         {
             FirstRun = false;
             zBB.CurrentTarget = robotRef.closestMember.name;
-            Debug.Log("Moving to " + robotRef.closestMember.name);
+            //Debug.Log("Moving to " + robotRef.closestMember.name);
         }
         BTStatus rv = BTStatus.RUNNING;
         robotRef.transform.LookAt(robotRef.closestMember.transform);
@@ -147,7 +147,7 @@ public class MedicStopMovement : BTNode
 
     public override BTStatus Execute()
     {
-        Debug.Log("Stopped Moving");
+        //Debug.Log("Stopped Moving");
         robotRef.StopMovement();
         return BTStatus.SUCCESS;
     }

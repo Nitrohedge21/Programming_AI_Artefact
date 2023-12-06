@@ -16,9 +16,10 @@ public class RobotBB : Blackboard {
     public string CurrentTarget;
 
 
-    void Update ()
+    void Update()
     {
-        BombCarrier = Bomb.GetComponent<Bomb>().carrier;
+        if (!gameObject.CompareTag("Mann"))
+        { BombCarrier = Bomb.GetComponent<Bomb>().carrier; } 
         PlayerLocation = Player.transform.position;
         BombLocation = Bomb.transform.position;
         HatchLocation = Hatch.transform.position;
