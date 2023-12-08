@@ -27,6 +27,11 @@ public class RobotMovementBT : MonoBehaviour
     [HideInInspector] private Waypoints waypoints;
     [HideInInspector] public GameObject targetWaypoint;
     #endregion
+    #region Wall Avoidance
+    [SerializeField] LayerMask layerMask;
+    [Range(0f, 10f)] public float LineLength = 10f; // AKA - PenetrationDistance
+    Vector3 WallNormal = Vector3.zero;
+    #endregion
     #region Timer Stuff (2BeUsed4BombDropping)
     float time = 0f;
     float timeDelay = 1f;
@@ -83,6 +88,7 @@ public class RobotMovementBT : MonoBehaviour
         //targetWaypoint = waypointArray[waypointArray.Length - 1];
         #endregion
 
+        #region Seperation Stuff
         GameObject[] robots = GameObject.FindGameObjectsWithTag("Robots");
         List<GameObject> TaggedRobots = new List<GameObject>();
         TaggedRobots.Clear();
@@ -93,13 +99,16 @@ public class RobotMovementBT : MonoBehaviour
                 TaggedRobots.Add(robot);
             }
         }
+        #endregion
         if (IsMoving)
         {
             Vector3 dir = MoveLocation - transform.position;
             transform.position += dir.normalized * MoveSpeed * Time.deltaTime;
+            WallAvoidance();
             Seperation(TaggedRobots);
         }
     }
+
     #region Functions
     public void RobotMoveTo(Vector3 MoveLocation)
     {
@@ -169,6 +178,30 @@ public class RobotMovementBT : MonoBehaviour
         agent.SetDestination(targetPos);
         this.MoveLocation = targetPos;
         agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+    }
+
+    public void WallAvoidance()
+    {
+        IsMoving = true;
+        this.MoveLocation = WallNormal * LineLength;
+        RaycastHit hit;
+        Debug.DrawLine(transform.position, transform.position + transform.forward * LineLength, Color.red);
+        Debug.DrawLine(transform.position, transform.position + (transform.forward + transform.right) * LineLength, Color.blue);
+        Debug.DrawLine(transform.position, transform.position + (transform.forward - transform.right) * LineLength, Color.green);
+
+        if (Physics.Raycast(transform.position, transform.forward, out hit, LineLength, layerMask))
+        {
+            WallNormal = hit.normal;
+        }
+        else if (Physics.Raycast(transform.position, transform.forward + transform.right, out hit, LineLength, layerMask))
+        {
+            WallNormal = hit.normal;
+        }
+        else if (Physics.Raycast(transform.position, transform.forward - transform.right, out hit, LineLength, layerMask))
+        {
+            WallNormal = hit.normal;
+        }
+        
     }
 
     public void StopMovement()

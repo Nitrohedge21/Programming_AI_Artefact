@@ -86,7 +86,7 @@ public class HealBT : MonoBehaviour
         }
         if (gameObject.layer == 8 && closestMember != null)
         {
-            Debug.Log("closest object is " + closestMember.name);
+            //Debug.Log("closest object is " + closestMember.name);
         }
 
         return closestMember;

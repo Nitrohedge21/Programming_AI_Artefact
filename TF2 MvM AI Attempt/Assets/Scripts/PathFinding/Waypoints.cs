@@ -39,7 +39,7 @@ public class Waypoints : MonoBehaviour
         }
         if(ReachedLastWaypoint(currentWaypoint))
         {
-            Debug.Log("Reached the last waypoint");
+            //Debug.Log("Reached the last waypoint");
             return transform.GetChild(currentWaypoint.GetSiblingIndex());
         }
         else

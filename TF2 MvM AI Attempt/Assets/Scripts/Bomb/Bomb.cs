@@ -25,7 +25,7 @@ public class Bomb : MonoBehaviour
 
     private void Update()
     {
-        if(carrier.GetComponent<Health>().currentHealth <= 0)
+        if(carrier != null && carrier.GetComponent<Health>().currentHealth <= 0)
         {
             //This function might be called upon the actual destruction of the carrier.
             //This line is for testing purposes only.
@@ -37,8 +37,9 @@ public class Bomb : MonoBehaviour
     {
         transform.parent = other.transform;
         transform.localScale = newSize;
+        //TODO : Make the bomb appear on it's back all the time
         transform.position = other.transform.position + newPosition;
-        other.GetComponent<RobotMovementBT>().MoveSpeed = 2;
+        other.GetComponent<RobotMovementBT>().MoveSpeed -= 0.5f;
     }
 
     public void DetachFromCarrier()

@@ -8,7 +8,7 @@ public class Health : MonoBehaviour
     [HideInInspector] public HealthBar healthbar;
     [SerializeField] private bool canBeDestroyed = false;
 
-    void Start()
+    void Awake()
     {
         bombRef = GameObject.Find("Bomb").GetComponent<Bomb>();
         currentHealth = maxHealth;

@@ -115,8 +115,12 @@ public class Minigun : MonoBehaviour
 
     public void ApplyDamage(Collider other) 
     {
-        //TODO: Gotta fix this function because robots can deal damage to each other.
-        other.GetComponent<Health>().TakeDamage(BulletDamage);
-        Debug.Log(other.name + "'s current HP is " + other.GetComponent<Health>().currentHealth);
+        if (other.GetComponent<Health>() != null)
+        {
+            //TODO: Gotta fix this function because robots can deal damage to each other.
+            other.GetComponent<Health>().TakeDamage(BulletDamage);
+            Debug.Log(other.name + "'s current HP is " + other.GetComponent<Health>().currentHealth);
+        }
+        
     }
 }
